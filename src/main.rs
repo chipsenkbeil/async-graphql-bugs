@@ -1,89 +1,84 @@
-use entity::*;
-use serde::{Deserialize, Serialize};
 use std::convert::Infallible;
 use warp::{reply::Reply, Filter};
 
-#[simple_ent]
-#[derive(AsyncGraphqlEnt, AsyncGraphqlEntFilter)]
+#[derive(Default)]
 pub struct Page {
-    #[ent(edge(policy = "deep", wrap), ext(async_graphql(filter_untyped)))]
-    contents: Vec<BlockElement>,
+    contents: Vec<usize>,
 }
 
-#[simple_ent]
+#[async_graphql::Object]
+impl Page {
+    async fn contents_ids(&self) -> &[usize] {
+        &self.contents
+    }
+
+    async fn contents(&self) -> Vec<BlockElement> {
+        Vec::new()
+    }
+}
+
 #[derive(async_graphql::Union)]
 pub enum Element {
-    #[ent(wrap)]
     #[graphql(flatten)]
     Block(BlockElement),
 }
 
-#[simple_ent]
-#[derive(async_graphql::Union, Debug)]
+#[derive(async_graphql::Union)]
 pub enum BlockElement {
     Blockquote(Blockquote),
 }
 
-#[simple_ent]
-#[derive(AsyncGraphqlEnt, AsyncGraphqlEntFilter)]
+#[derive(Default)]
 pub struct Blockquote {
-    #[ent(field, ext(async_graphql(filter_untyped)))]
     region: Region,
     lines: Vec<String>,
-
-    /// Page containing the blockquote
-    #[ent(edge)]
-    page: Page,
-
-    /// Parent element to this blockquote
-    #[ent(edge(policy = "shallow", wrap), ext(async_graphql(filter_untyped)))]
-    parent: Option<Element>,
+    page: usize,
+    parent: Option<usize>,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Default,
-    PartialEq,
-    Eq,
-    async_graphql::SimpleObject,
-    Serialize,
-    Deserialize,
-    ValueLike,
-)]
+#[async_graphql::Object]
+impl Blockquote {
+    async fn region(&self) -> &Region {
+        &self.region
+    }
+
+    async fn lines(&self) -> &[String] {
+        &self.lines
+    }
+
+    async fn page_id(&self) -> usize {
+        self.page
+    }
+
+    async fn page(&self) -> Page {
+        Page {
+            contents: Vec::new(),
+        }
+    }
+
+    async fn parent_id(&self) -> Option<usize> {
+        self.parent.as_ref().copied()
+    }
+
+    async fn parent(&self) -> Option<Element> {
+        None
+    }
+}
+
+#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
 pub struct Region {
     offset: usize,
     len: usize,
     position: Option<Position>,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Default,
-    PartialEq,
-    Eq,
-    async_graphql::SimpleObject,
-    Serialize,
-    Deserialize,
-    ValueLike,
-)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
 pub struct Position {
     start: LineColumn,
     end: LineColumn,
 }
 
-#[derive(
-    Clone,
-    Debug,
-    Default,
-    PartialEq,
-    Eq,
-    async_graphql::SimpleObject,
-    Serialize,
-    Deserialize,
-    ValueLike,
-)]
+#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
 pub struct LineColumn {
     line: usize,
     column: usize,
@@ -95,39 +90,19 @@ pub struct Query;
 #[async_graphql::Object]
 impl Query {
     async fn page(&self) -> Page {
-        Page::build().contents(Vec::new()).finish().unwrap()
+        Page::default()
     }
 
     async fn element(&self) -> Element {
-        let blockquote = Blockquote::build()
-            .region(Region::default())
-            .lines(Vec::new())
-            .page(0)
-            .parent(None)
-            .finish()
-            .unwrap();
-        Element::Block(BlockElement::Blockquote(blockquote))
+        Element::Block(BlockElement::Blockquote(Blockquote::default()))
     }
 
     async fn block_element(&self) -> BlockElement {
-        let blockquote = Blockquote::build()
-            .region(Region::default())
-            .lines(Vec::new())
-            .page(0)
-            .parent(None)
-            .finish()
-            .unwrap();
-        BlockElement::Blockquote(blockquote)
+        BlockElement::Blockquote(Blockquote::default())
     }
 
     async fn blockquote(&self) -> Blockquote {
-        Blockquote::build()
-            .region(Region::default())
-            .lines(Vec::new())
-            .page(0)
-            .parent(None)
-            .finish()
-            .unwrap()
+        Blockquote::default()
     }
 }
 
