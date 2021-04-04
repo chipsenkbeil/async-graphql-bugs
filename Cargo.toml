@@ -1,0 +1,15 @@
+[package]
+name = "async-graphql-bug"
+version = "0.1.0"
+authors = ["Chip Senkbeil <chip@senkbeil.org>"]
+edition = "2018"
+
+[dependencies]
+async-graphql = "2.7.4"
+async-graphql-warp = "2.7.4"
+entity = { version = "0.2.5", features = ["async-graphql", "global", "macros", "inmemory_db", "serde-1"] }
+serde = { version = "1.0.115", features = ["derive", "rc"] }
+serde_json = "1.0.58"
+tokio = { version = "1.4.0", features = ["full"] }
+typetag = "0.1.6"
+warp = "0.3.1"
