@@ -17,6 +17,7 @@ impl Page {
     }
 }
 
+// NOTE: Necessary as removing this results in working properly
 #[derive(async_graphql::Union)]
 pub enum Element {
     #[graphql(flatten)]
@@ -94,7 +95,7 @@ async fn main() {
     )
     .finish();
 
-    let routes = warp::any().and(warp::path("/graphql").and(
+    let routes = warp::any().and(warp::path("graphql").and(
         async_graphql_warp::graphql(schema).and_then(
             |(schema, request): (Schema, async_graphql::Request)| async move {
                 let resp = schema.execute(request).await;
