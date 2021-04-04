@@ -1,11 +1,4 @@
-[package]
-name = "async-graphql-bug"
-version = "0.1.0"
-authors = ["Chip Senkbeil <chip@senkbeil.org>"]
-edition = "2018"
-
-[dependencies]
-async-graphql = "2.7.4"
-async-graphql-warp = "2.7.4"
-tokio = { version = "1.4.0", features = ["full"] }
-warp = "0.3.1"
+[workspace]
+members = [
+    "stack-overflow",
+]
