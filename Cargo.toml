@@ -2,3 +2,6 @@
 members = [
     "stack-overflow",
 ]
+
+# [patch.crates-io]
+# async-graphql = { path = '/Users/senkwich/projects/async-graphql' }

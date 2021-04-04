@@ -30,7 +30,6 @@ pub enum BlockElement {
 
 #[derive(Default)]
 pub struct Blockquote {
-    region: Region,
     lines: Vec<String>,
     page: usize,
     parent: Option<usize>,
@@ -38,10 +37,6 @@ pub struct Blockquote {
 
 #[async_graphql::Object]
 impl Blockquote {
-    async fn region(&self) -> &Region {
-        &self.region
-    }
-
     async fn lines(&self) -> &[String] {
         &self.lines
     }
@@ -63,25 +58,6 @@ impl Blockquote {
     async fn parent(&self) -> Option<Element> {
         None
     }
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
-pub struct Region {
-    offset: usize,
-    len: usize,
-    position: Option<Position>,
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
-pub struct Position {
-    start: LineColumn,
-    end: LineColumn,
-}
-
-#[derive(Clone, Debug, Default, PartialEq, Eq, async_graphql::SimpleObject)]
-pub struct LineColumn {
-    line: usize,
-    column: usize,
 }
 
 #[derive(Default)]
